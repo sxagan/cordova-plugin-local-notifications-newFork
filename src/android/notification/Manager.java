@@ -116,9 +116,44 @@ public class Manager {
             return null;
 
         notification.cancel();
+        
+        JSONObject options = mergeJSONObjects( notification.getOptions().getDict(), updates);
 
-        JSONObject options = mergeJSONObjects(
-                notification.getOptions().getDict(), updates);
+        try {
+            options.putOpt("updatedAt", new Date().getTime());
+        } catch (JSONException ignore) {}
+
+        return schedule(options, receiver);
+    }
+
+    /**
+     * Clear local notification specified by ID.
+     *
+     * @param id
+     *      The notification ID
+     * @param appends
+     *      JSON object with notification options
+     * @param receiver
+     *      Receiver to handle the trigger event
+     */
+    public Notification append (int id, JSONObject appends, Class<?> receiver) {
+        Notification notification = get(id);
+
+        if (notification == null)
+            return null;
+
+        notification.cancel();
+        JSONObject oldOptObj = notification.getOptions().getDict();
+        Options oldOptions = new Options(context).parse(oldOptObj);
+        String oldtext = oldOptions.getText();
+
+        String newtext = appends.optString("text");
+        try {
+            appends.put("text", oldtext+"\r\n" + newtext);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JSONObject options = mergeJSONObjects( oldOptObj, appends);
 
         try {
             options.putOpt("updatedAt", new Date().getTime());

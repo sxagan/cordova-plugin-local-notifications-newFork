@@ -119,15 +119,22 @@ public class Builder {
         NotificationCompat.BigTextStyle style;
         NotificationCompat.Builder builder;
 
+        String summary = options.getText();
+        if(summary.length() > 50){
+            summary = summary.substring(0,20);
+        }
         style = new NotificationCompat.BigTextStyle()
-                .bigText(options.getText());
+                .bigText(options.getText()).setBigContentTitle(options.getTitle());
+
 
         builder = new NotificationCompat.Builder(context)
                 .setDefaults(0)
                 .setContentTitle(options.getTitle())
-                .setContentText(options.getText())
+                //.setContentText(options.getText())
+                .setContentText(summary)
                 .setNumber(options.getBadgeNumber())
-                .setTicker(options.getText())
+                //.setTicker(options.getText())
+                .setTicker(summary)
                 .setSmallIcon(options.getSmallIcon())
                 .setLargeIcon(options.getIconBitmap())
                 .setAutoCancel(options.isAutoClear())
@@ -135,8 +142,32 @@ public class Builder {
                 .setStyle(style)
                 .setLights(options.getLedColor(), 500, 500);
 
-        if (sound != null) {
+        Intent view2 = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"));
+        PendingIntent piview2 = PendingIntent.getService(this.context, 0, view2, 0);
+        Intent view3 = new Intent(this.context, ClickActivity.class);//de.appplant.cordova.plugin.localnotification.
+        view3.putExtra("Value1", "This value one for ActivityTwo");
+        view3.putExtra("Value2", "This value two ActivityTwo");
+        PendingIntent piview3 = PendingIntent.getService(this.context, 0, view3, 0);
+
+        builder.addAction(this.context.getResources().getIdentifier("icon", "drawable", this.context.getPackageName()), "Click", piview3)
+                .addAction(this.context.getResources().getIdentifier("icon", "drawable", this.context.getPackageName()), "View", piview2);
+
+        /*if (sound != null) {
             builder.setSound(sound);
+        }*/
+        String soundname = options.getSoundName();
+        if (soundname != null) {
+            String pkg = this.context.getPackageName();
+            //int resId = this.context.getResources().getIdentifier(soundname, "raw", this.context.getPackageName());
+            //Uri s = Uri.parse("android.resource://" + pkg + "/" + resId);
+
+            //Uri s = Uri.parse("android.resource://"+pkg+"/raw/s1");
+            Uri s = Uri.parse("android.resource://"+pkg+soundname);
+            //Uri s = Uri.parse("res://" + R.raw.s1);
+            //builder.setSound(sound);
+            //this.context.getResources().getIdentifier("s1", "raw", this.context.getPackageName())
+            builder.setSound(s);
+            //builder.setSound(Uri.parse("android.resource://de.appplant.localnotification.example/s1"));
         }
 
         applyDeleteReceiver(builder);

@@ -143,6 +143,11 @@ public class LocalNotification extends CordovaPlugin {
                     update(args);
                     command.success();
                 }
+                else if (action.equals("append")) {
+                    ///LOG.d("append","appended");
+                    append(args);
+                    command.success();
+                }
                 else if (action.equals("cancel")) {
                     cancel(args);
                     command.success();
@@ -236,6 +241,24 @@ public class LocalNotification extends CordovaPlugin {
                     getNotificationMgr().update(id, update, TriggerReceiver.class);
 
             fireEvent("update", notification);
+        }
+    }
+
+    /**
+     * Append multiple local notifications.
+     *
+     * @param appends
+     *      Notification properties including their IDs
+     */
+    private void append (JSONArray appends) {
+        for (int i = 0; i < appends.length(); i++) {
+            JSONObject append = appends.optJSONObject(i);
+            int id = append.optInt("id", 0);
+
+            Notification notification =
+                    getNotificationMgr().append(id, append, TriggerReceiver.class);
+
+            fireEvent("append", notification);
         }
     }
 

@@ -261,6 +261,18 @@ public class Options {
         return uri;
     }
 
+    public String getSoundName() {
+        String name = null;
+
+        try{
+            name = options.optString("soundname");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return name;
+    }
+
     /**
      * Icon bitmap for the local notification.
      */
